@@ -49,3 +49,4 @@ jobs:
             cd /home/ubuntu
             pkill -f demo-1.0.jar || true
             nohup java -Xms128m -Xmx256m -jar demo-1.0.jar > app.log 2>&1 &
+            ps aux | grep java
