@@ -27,13 +27,13 @@ jobs:
         username: ubuntu
         key: ${{ secrets.SSH_KEY }}
         script: |
-         cd /home/ubuntu
+           cd /home/ubuntu
 
-         echo "Stopping old app..."
-         PID=$(ps aux | grep demo-1.0.jar | grep -v grep | awk '{print $2}')
-         if [ -n "$PID" ]; then
-            kill -9 $PID
-         fi
+           echo "Stopping old app..."
+           PID=$(ps aux | grep demo-1.0.jar | grep -v grep | awk '{print $2}')
+           if [ -n "$PID" ]; then
+             kill -9 $PID
+           fi
 
-         echo "Starting new app..."
-         nohup java -jar demo-1.0.jar > app.log 2>&1 
+           echo "Starting new app..."
+           nohup java -Xms128m -Xmx256m -jar demo-1.0.jar > app.log 2>&1 &
