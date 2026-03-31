@@ -20,14 +20,11 @@ jobs:
 
     - name: Build
       run: mvn clean install
-
-    - name: Deploy to Server
-      uses: appleboy/ssh-action@v1.0.0
+    - name: Copy JAR to Server
+      uses: appleboy/scp-action@v0.1.7
       with:
         host: ${{ secrets.SERVER_IP }}
         username: ubuntu
         key: ${{ secrets.SSH_KEY }}
-        script: |
-          cd /home/ubuntu
-          pkill -f demo-1.0.jar || true
-          nohup java -jar demo-1.0.jar > app.log 2>&1 &
+        source: "target/demo-1.0.jar"
+        target: "/home/ubuntu/"
