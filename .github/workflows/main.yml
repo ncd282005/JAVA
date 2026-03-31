@@ -20,16 +20,20 @@ jobs:
 
     - name: Build
       run: mvn clean install
-    - name: Copy JAR to Server
-      uses: appleboy/scp-action@v0.1.7
+    - name: Restart App
+      uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.SERVER_IP }}
         username: ubuntu
         key: ${{ secrets.SSH_KEY }}
         script: |
-          cd /home/ubuntu
-          PID=$(ps aux | grep demo-1.0.jar | grep -v grep | awk '{print $2}')
-          if [ -n "$PID" ]; then
+         cd /home/ubuntu
+
+         echo "Stopping old app..."
+         PID=$(ps aux | grep demo-1.0.jar | grep -v grep | awk '{print $2}')
+         if [ -n "$PID" ]; then
             kill -9 $PID
-          fi
-          nohup java -jar demo-1.0.jar > app.log 2>&1 &
+         fi
+
+         echo "Starting new app..."
+         nohup java -jar demo-1.0.jar > app.log 2>&1 
