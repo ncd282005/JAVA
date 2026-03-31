@@ -20,20 +20,32 @@ jobs:
 
     - name: Build
       run: mvn clean install
-    - name: Restart App
+
+    - name: Remove old JAR
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.SERVER_IP }}
         username: ubuntu
         key: ${{ secrets.SSH_KEY }}
-        script: |
-           cd /home/ubuntu
+        script: rm -f /home/ubuntu/demo-1.0.jar
 
-           echo "Stopping old app..."
-           PID=$(ps aux | grep demo-1.0.jar | grep -v grep | awk '{print $2}')
-           if [ -n "$PID" ]; then
-             kill -9 $PID
-           fi
+    - name: Copy new JAR
+      uses: appleboy/scp-action@v0.1.7
+      with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          source: "target/demo-1.0.jar"
+          target: "/home/ubuntu/"
+          overwrite: true
 
-           echo "Starting new app..."
-           nohup java -Xms128m -Xmx256m -jar demo-1.0.jar > app.log 2>&1 &
+    - name: Restart App
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ubuntu
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /home/ubuntu
+            pkill -f demo-1.0.jar || true
+            nohup java -Xms128m -Xmx256m -jar demo-1.0.jar > app.log 2>&1 &
