@@ -26,5 +26,10 @@ jobs:
         host: ${{ secrets.SERVER_IP }}
         username: ubuntu
         key: ${{ secrets.SSH_KEY }}
-        source: "target/demo-1.0.jar"
-        target: "/home/ubuntu/"
+        script: |
+          cd /home/ubuntu
+          PID=$(ps aux | grep demo-1.0.jar | grep -v grep | awk '{print $2}')
+          if [ -n "$PID" ]; then
+            kill -9 $PID
+          fi
+          nohup java -jar demo-1.0.jar > app.log 2>&1 &
